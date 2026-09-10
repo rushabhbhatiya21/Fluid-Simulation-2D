@@ -8,6 +8,8 @@ public:
 	Renderer();
 	~Renderer();
 
+	void run();
+
 private:
 	GLFWwindow* window;
 };
