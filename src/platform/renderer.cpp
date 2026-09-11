@@ -25,6 +25,15 @@ Renderer::Renderer()
 	}
 
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+
+	// temp moved here to avoid ordering problem
+	// texture
+	texture = 0;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 128, 128, 0, GL_RED, GL_FLOAT, nullptr);
 }
 
 Renderer::~Renderer()
@@ -36,9 +45,16 @@ Renderer::~Renderer()
 void Renderer::run()
 {
 	float vertices[] = {
-		-0.5f, -0.5f,
-		 0.5f, -0.5f,
-		 0.0f,  0.5f
+		// position    // uv
+		-1.0f, 1.0f,   0.0f, 0.0f,
+		 1.0f, 1.0f,   1.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 1.0f
+	};
+
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
 	};
 
 	while (glGetError());
@@ -106,28 +122,51 @@ void Renderer::run()
 	glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profile);
 	std::cout << "Profile: " << profile << '\n';
 
+	// vbo
 	unsigned int VBO = 0;
 	glCreateBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), (void*)vertices, GL_STATIC_DRAW);
 
+	// vao
 	unsigned int VAO = 0;
 	glCreateVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	// ebo
+	unsigned int EBO = 0;
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), (void*)indices, GL_STATIC_DRAW);
 
 	std::cout << "Error Code: " << glGetError() << std::endl;
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	int location = glGetUniformLocation(shaderProgram, "fieldTexture");
+	glUseProgram(shaderProgram);
+	glUniform1i(location, 0);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+}
+
+void Renderer::upload(const float* data)
+{
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 128, 128, GL_RED, GL_FLOAT, (void*)data);
 }

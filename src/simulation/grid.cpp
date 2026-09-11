@@ -19,3 +19,8 @@ void Grid::set(int x, int y, float value)
 {
 	grid[y][x] = value;
 }
+
+const float* Grid::data()
+{
+	return &grid[0][0];
+}

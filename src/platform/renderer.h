@@ -9,6 +9,10 @@ public:
 	~Renderer();
 
 	void run();
+	void upload(const float* data);
+
+public:
+	unsigned int texture = 0;
 
 private:
 	GLFWwindow* window;
