@@ -8,12 +8,12 @@ public:
 	Renderer();
 	~Renderer();
 
-	void run();
+	bool shouldClose() const;
+	void render();
 	void upload(const float* data);
 
 public:
-	unsigned int texture = 0;
-
+	unsigned int fieldTexture = 0;
 private:
 	GLFWwindow* window;
 };

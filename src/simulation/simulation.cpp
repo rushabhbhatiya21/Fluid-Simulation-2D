@@ -1,4 +1,5 @@
 #include "simulation.h"
+#include <iostream>
 
 Simulation::Simulation()
 {
@@ -10,9 +11,9 @@ Simulation::~Simulation()
 
 void Simulation::initialize()
 {
-	for (int y = 60; y < 68; y++)
+	for (int y = yy; y < yy + 8; y++)
 	{
-		for (int x = 60; x < 68; x++)
+		for (int x = xx; x < xx + 8; x++)
 		{
 			grid.set(x, y, 1.0f);
 		}
@@ -22,4 +23,22 @@ void Simulation::initialize()
 Grid& Simulation::getGrid()
 {
 	return grid;
+}
+
+void Simulation::update()
+{
+	grid.clear();
+
+	if (xx + 8 > 128)
+		xx = -1;
+
+	xx++;
+
+	for (int y = yy; y < yy + 8; y++)
+	{
+		for (int x = xx; x < xx + 8; x++)
+		{
+			grid.set(x, y, 1.0f);
+		}
+	}
 }

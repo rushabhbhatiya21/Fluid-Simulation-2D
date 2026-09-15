@@ -24,3 +24,8 @@ const float* Grid::data()
 {
 	return &grid[0][0];
 }
+
+void Grid::clear()
+{
+	std::memset(grid, 0, sizeof(grid));
+}

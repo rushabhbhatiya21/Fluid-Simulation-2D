@@ -28,22 +28,13 @@ Renderer::Renderer()
 
 	// temp moved here to avoid ordering problem
 	// texture
-	texture = 0;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	fieldTexture = 0;
+	glGenTextures(1, &fieldTexture);
+	glBindTexture(GL_TEXTURE_2D, fieldTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 128, 128, 0, GL_RED, GL_FLOAT, nullptr);
-}
 
-Renderer::~Renderer()
-{
-	glfwDestroyWindow(window);
-	glfwTerminate();
-}
-
-void Renderer::run()
-{
 	float vertices[] = {
 		// position    // uv
 		-1.0f, 1.0f,   0.0f, 0.0f,
@@ -148,25 +139,36 @@ void Renderer::run()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, fieldTexture);
 	int location = glGetUniformLocation(shaderProgram, "fieldTexture");
 	glUseProgram(shaderProgram);
 	glUniform1i(location, 0);
+}
 
-	while (!glfwWindowShouldClose(window))
-	{
-		glClear(GL_COLOR_BUFFER_BIT);
+Renderer::~Renderer()
+{
+	glfwDestroyWindow(window);
+	glfwTerminate();
+}
 
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+bool Renderer::shouldClose() const
+{
+	return glfwWindowShouldClose(window);
+}
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
+void Renderer::render()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+	glfwSwapBuffers(window);
+	glfwPollEvents();
 }
 
 void Renderer::upload(const float* data)
 {
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, fieldTexture);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 128, 128, GL_RED, GL_FLOAT, (void*)data);
 }

@@ -8,13 +8,14 @@ int main()
 	Renderer renderer;
 
 	simulation.initialize();
-	//std::cout << simulation.getGrid().get(63, 63) << '\n';
-	//std::cout << simulation.getGrid().get(0, 0) << '\n';
 
-	simulation.getGrid().set(63, 63, 1.0f);
+	while (!renderer.shouldClose())
+	{
+		simulation.update();
+		renderer.upload(simulation.getGrid().data());
+		renderer.render();
+	}
 
-	renderer.upload(simulation.getGrid().data());
-	renderer.run();
 
 	return 0;
 } 
