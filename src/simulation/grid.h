@@ -1,6 +1,8 @@
 #pragma once
 #include <cstring>
 
+constexpr int size = 128;
+
 class Grid
 {
 public:
@@ -8,10 +10,14 @@ public:
 	~Grid();
 
 	float get(int x, int y) const;
+	float getNeighbor(int x, int y) const;
 	void set(int x, int y, float value);
 	const float* data();
 	void clear();
 
+public:
+	int w, h;
+
 private:
-	float grid[128][128];
+	float grid[size][size];
 };

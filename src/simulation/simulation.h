@@ -10,9 +10,12 @@ public:
 
 	void initialize();
 	Grid& getGrid();
-	void update();
+	void update(float dt);
 
 private:
-	Grid grid;
-	int yy = 60, xx = 60;
+	Grid current;
+	Grid next;
+
+	float D = 1.0f;
+	float h = 1.0f;
 };
