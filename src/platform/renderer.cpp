@@ -8,17 +8,46 @@
 #include <fstream>
 #include <sstream>
 
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+static void processInput(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+}
+
 Renderer::Renderer()
 {
+	// glfw: initialize and configure
+	// ------------------------------
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(1280, 720, "Simulation", nullptr, nullptr);
-	glfwMakeContextCurrent(window);
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
+	// glfw window creation
+	// --------------------
+	window = glfwCreateWindow(1280, 720, "Simulation", nullptr, nullptr);
+	if (window == NULL)
+	{
+		std::cerr << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return;
+	}
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -158,11 +187,17 @@ bool Renderer::shouldClose() const
 
 void Renderer::render()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	// input
+	// -----
+	processInput(window);
 
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	// render
+	// ------
+	glClear(GL_COLOR_BUFFER_BIT);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
+	// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+	// -------------------------------------------------------------------------------
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 }
