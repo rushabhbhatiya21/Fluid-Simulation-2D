@@ -18,4 +18,7 @@ private:
 
 	float D = 1.0f;
 	float h = 1.0f;
+	float tolerance = 0.000001f;
+	bool equilibrium = false;
+	float maxValue = 0;
 };

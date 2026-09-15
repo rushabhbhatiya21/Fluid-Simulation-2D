@@ -23,6 +23,7 @@ void Simulation::initialize()
 	current.set(63, 64, 10.0f);
 	current.set(64, 63, 10.0f);
 	current.set(63, 63, 10.0f);
+	equilibrium = false;
 }
 
 Grid& Simulation::getGrid()
@@ -35,6 +36,14 @@ void Simulation::update(float dt)
 	// stability check
 	assert(D * dt / (h * h) <= 0.25f);
 
+	if (equilibrium)
+	{
+		std::cout << "Equilibrium reached!" << std::endl;
+		return;
+	}
+
+	maxValue = 0.0f;
+
 	for (int y = 0; y < current.h; y++)
 	{
 		for (int x = 0; x < current.w; x++)
@@ -44,9 +53,17 @@ void Simulation::update(float dt)
 			// boundary condition - no flux
 			float neighborSum = current.getNeighbor(x - 1, y) + current.getNeighbor(x, y + 1) + current.getNeighbor(x + 1, y) + current.getNeighbor(x, y - 1);
 			float laplacian = (neighborSum - 4 * currentValue) / (h * h);
-			next.set(x, y, currentValue + (D * dt * laplacian));
+			float newValue = currentValue + (D * dt * laplacian);
+			next.set(x, y, newValue);
+
+			maxValue = std::max(maxValue, abs(newValue - currentValue));
 		}
 	}
 
 	std::swap(current, next);
+
+	if (maxValue < tolerance)
+		equilibrium = true;
+
+	//std::cout << "max=" << maxValue << std::endl;
 }
