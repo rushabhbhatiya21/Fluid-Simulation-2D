@@ -9,31 +9,30 @@ int main()
 
 	simulation.initialize();
 
+	std::cout << "Initial total=" << simulation.totalScalar() << std::endl;
+
+	int n = 0;
+	bool printFinalErrors = true;
+
 	while (!renderer.shouldClose())
 	{
-		//float before = 0.f, after = 0.f;
-		//for (int y = 0; y < 128; y++)
-		//{
-		//	for (int x = 0; x < 128; x++)
-		//	{
-		//		before += simulation.getGrid().get(x, y);
-		//	}
-		//}
+		if (n % 500 == 0)
+			std::cout << "Step=" << n << ", total=" << simulation.totalScalar() << std::endl;
 
-		simulation.update(0.1f);
+		std::cout << "Step=" << n << " SimulationTime=" << simulation.getSimulationTime() << std::endl;
+
+		simulation.step();
 		renderer.upload(simulation.getGrid().data());
 		renderer.render();
 
-		//for (int y = 0; y < 128; y++)
-		//{
-		//	for (int x = 0; x < 128; x++)
-		//	{
-		//		after += simulation.getGrid().get(x, y);
-		//	}
-		//}
+		n++;
 
-		//std::cout << "Before: " << before << '\n';
-		//std::cout << "After:  " << after << '\n';
+		if (simulation.getEquilibrium() && printFinalErrors)
+		{
+			std::cout << "Final Absolute Error=" << simulation.calculateFinalAbsolute() << std::endl;
+			std::cout << "Final Relative Error=" << simulation.calculateFinalRelative() << std::endl;
+			printFinalErrors = false;
+		}
 	}
 
 	return 0;

@@ -24,6 +24,8 @@ void Simulation::initialize()
 	current.set(64, 63, 10.0f);
 	current.set(63, 63, 10.0f);
 	equilibrium = false;
+
+	initialTotal = totalScalar();
 }
 
 Grid& Simulation::getGrid()
@@ -31,7 +33,7 @@ Grid& Simulation::getGrid()
 	return current;
 }
 
-void Simulation::update(float dt)
+void Simulation::step()
 {
 	// stability check
 	assert(D * dt / (h * h) <= 0.25f);
@@ -65,5 +67,42 @@ void Simulation::update(float dt)
 	if (maxValue < tolerance)
 		equilibrium = true;
 
-	//std::cout << "max=" << maxValue << std::endl;
+	finalTotal = totalScalar();
+
+	simulationTime += dt;
+}
+
+float Simulation::totalScalar() const
+{
+	float total = 0.0f;
+
+	for (int y = 0; y < current.h; y++)
+	{
+		for (int x = 0; x < current.w; x++)
+		{
+			total += current.get(x, y);
+		}
+	}
+
+	return total;
+}
+
+float Simulation::calculateFinalAbsolute() const
+{
+	return abs(initialTotal - finalTotal);
+}
+
+float Simulation::calculateFinalRelative() const
+{
+	return abs(initialTotal - finalTotal) / initialTotal;
+}
+
+bool Simulation::getEquilibrium() const
+{
+	return equilibrium;
+}
+
+float Simulation::getSimulationTime() const
+{
+	return simulationTime;
 }
